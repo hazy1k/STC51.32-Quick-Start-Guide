@@ -1,5 +1,0 @@
-".\Obj\main.obj",
-".\Obj\lcd9648.obj",
-".\Obj\public.obj" 
-TO ".\Obj\template" 
-PRINT(".\Obj\template.m51") RAMSIZE(256) 

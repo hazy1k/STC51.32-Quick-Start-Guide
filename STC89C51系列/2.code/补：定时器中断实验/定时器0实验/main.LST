@@ -1,0 +1,73 @@
+C51 COMPILER V9.01   MAIN                                                                  10/04/2024 16:44:33 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: E:\dianzi\C51\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          
+   3          // 定义LED1管脚
+   4          sbit LED1 = P2^0;
+   5          
+   6          // 定时器0中断配置函数，通过设置TH和TL即可确定定时时间
+   7          void time0_init() // 定时器初始化函数
+   8          {
+   9   1              // 1.选择为定时器0模式，工作方式1
+  10   1              TMOD |= 0X01;
+  11   1      
+  12   1              // 2.给定时器赋初值，定时1ms
+  13   1              TH0 = 0XFC;
+  14   1              TL0 = 0X18;
+  15   1      
+  16   1              // 3.中断配置   
+  17   1              ET0 = 1; // 打开定时器0中断允许
+  18   1              EA = 1; // 打开总中断
+  19   1              TR0 = 1; // 打开定时器          
+  20   1      }
+  21          
+  22          // 定时器0中断函数
+  23          void time0() interrupt 1 
+  24          {
+  25   1              static unsigned int i; // 定义静态变量i
+  26   1      
+  27   1              TH0 = 0XFC; // 给定时器赋初值，定时1ms
+  28   1              TL0 = 0X18;
+  29   1              i++; // 计时器
+  30   1      
+  31   1              if(i == 1000) // 计时1秒
+  32   1              {
+  33   2                      i = 0; // 重新开始计时
+  34   2                      LED1 = !LED1; // LED状态翻转
+  35   2              }                                               
+  36   1      }
+  37          
+  38          // 主函数
+  39          int main()
+  40          {       
+  41   1              time0_init(); // 定时器0中断配置
+  42   1      
+  43   1              while(1)
+  44   1              {                       
+  45   2                                                              
+  46   2              }               
+  47   1      }
+  48          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     60    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.01   MAIN                                                                  10/04/2024 16:44:33 PAGE 2   
+
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

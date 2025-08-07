@@ -1,0 +1,152 @@
+C51 COMPILER V9.01   MAIN                                                                  10/04/2024 16:44:18 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: E:\dianzi\C51\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "reg52.h"
+   2          
+   3          //定义TC1508S控制步进电机管脚
+   4          sbit IN_A = P1^0;
+   5          sbit IN_B = P1^1;
+   6          sbit IN_C = P1^2;
+   7          sbit IN_D = P1^3;
+   8          
+   9          // 定义独立按键控制脚
+  10          sbit KEY1 = P3^1;
+  11          sbit KEY2 = P3^0;
+  12          sbit KEY3 = P3^2;
+  13          sbit KEY4 = P3^3;
+  14          
+  15          //使用宏定义独立按键按下的键值
+  16          #define KEY1_PRESS      1
+  17          #define KEY2_PRESS      2
+  18          #define KEY3_PRESS      3
+  19          #define KEY4_PRESS      4
+  20          #define KEY_UNPRESS     0
+  21          
+  22          // 定义步进电机速度，值越小，速度越快
+  23          // 最小不能小于1
+  24          #define STEPMOTOR_MAXSPEED      1  
+  25          #define STEPMOTOR_MINSPEED  5   
+  26          
+  27          
+  28          void delay_10us(unsigned int ten_us)
+  29          {
+  30   1              while(ten_us--);        
+  31   1      }
+  32          
+  33          void delay_ms(unsigned int ms)
+  34          {
+  35   1              unsigned int i,j;
+  36   1              for(i=ms;i>0;i--)
+  37   1                      for(j=110;j>0;j--);
+  38   1      }
+  39          
+  40          // 发送节拍信号
+  41          void step_motor_send_pulse(unsigned char step, unsigned char dir)
+  42          {
+  43   1              unsigned char temp = step;
+  44   1              
+  45   1              if(dir == 0) // 如果为逆时针旋转
+  46   1                      temp = 7 - step; // 调换节拍信号
+  47   1      
+  48   1              switch(temp)//8个节拍控制：(A+)->(A+B+)->(B+)->(B+A-)->(A-)->(A-B-)->(B-)>(B-A+)
+  49   1              {
+  50   2                      case 0: 
+  51   2                              IN_A=1;IN_B=0;IN_C=0;IN_D=0;
+  52   2                              break;
+  53   2                      case 1: 
+  54   2                              IN_A=1;IN_B=0;IN_C=1;IN_D=0;
+  55   2                              break;
+C51 COMPILER V9.01   MAIN                                                                  10/04/2024 16:44:18 PAGE 2   
+
+  56   2                      case 2: 
+  57   2                              IN_A=0;IN_B=0;IN_C=1;IN_D=0;
+  58   2                              break;
+  59   2                      case 3: 
+  60   2                              IN_A=0;IN_B=1;IN_C=1;IN_D=0;
+  61   2                              break;
+  62   2                      case 4: 
+  63   2                              IN_A=0;IN_B=1;IN_C=0;IN_D=0;
+  64   2                              break;
+  65   2                      case 5: 
+  66   2                              IN_A=0;IN_B=1;IN_C=0;IN_D=1;
+  67   2                              break;
+  68   2                      case 6: 
+  69   2                              IN_A=0;IN_B=0;IN_C=0;IN_D=1;
+  70   2                              break;
+  71   2                      case 7: 
+  72   2                              IN_A=1;IN_B=0;IN_C=0;IN_D=1;
+  73   2                              break;
+  74   2                      default:
+  75   2                              IN_A=0;IN_B=0;IN_C=0;IN_D=0;
+  76   2                              break; // 停止相序      
+  77   2              }                       
+  78   1      }
+  79          
+  80          // 按键扫描
+  81          u8 key_scan(unsigned char mode);
+*** ERROR C129 IN LINE 81 OF MAIN.C: missing ';' before 'key_scan'
+  82          {
+  83                  static unsigned char key = 1;
+  84          
+  85                  if(mode)
+  86                          key = 1; // 连续扫描按键
+  87                  if(key == 1 && ( KEY1 == 0 || KEY2 == 0 || KEY3 == 0 || KEY4 == 0)) // 任意按键按下
+  88                  {
+  89                          delay_10us(1000);//消抖
+  90                          key = 0;
+  91                          if(KEY1 == 0)
+  92                                  return KEY1_PRESS;
+  93                          else if(KEY2 == 0)
+  94                                  return KEY2_PRESS;
+  95                          else if(KEY3 == 0)
+  96                                  return KEY3_PRESS;
+  97                          else if(KEY4 == 0)
+  98                                  return KEY4_PRESS;      
+  99                  }
+ 100                  else if(KEY1 == 1 && KEY2 == 1 && KEY3 == 1 && KEY4 == 1) // 无按键按下
+ 101                  {
+ 102                          key = 1;                        
+ 103                  }
+ 104                  return KEY_UNPRESS;             
+ 105          }
+ 106          
+ 107          void main()
+ 108          {       
+ 109                  unsigned char key = 0;
+ 110                  unsigned char dir = 0; // 默认逆时针方向
+ 111                  unsigned char speed = STEPMOTOR_MAXSPEED; // 默认最大速度旋转
+ 112                  unsigned char step = 0;
+ 113          
+ 114                  while(1)
+ 115                  {                       
+ 116                          key = key_scan(0);
+C51 COMPILER V9.01   MAIN                                                                  10/04/2024 16:44:18 PAGE 3   
+
+ 117                          if(key == KEY1_PRESS) // 换向
+ 118                          {
+ 119                                  dir =! dir;    
+ 120                          }
+ 121                          else if(key == KEY2_PRESS) // 加速
+ 122                          {
+ 123                                  if(speed > STEPMOTOR_MAXSPEED)
+ 124                                          speed -= 1;                     
+ 125                          }
+ 126                          else if(key == KEY3_PRESS) // 减速
+ 127                          {
+ 128                                  if(speed < STEPMOTOR_MINSPEED)
+ 129                                          speed += 1;                     
+ 130                          }
+ 131                          step_motor_send_pulse(step++, dir);
+ 132                          if(step == 8)
+ 133                                  step = 0;               
+ 134                          delay_ms(speed);                                                
+ 135                  }               
+ 136          }
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)

@@ -1,0 +1,29 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+D:\归档仓库\study_C51\2.参考程序\补：四线双极性步进电机实验\template.uvproj
+Project File Date:  05/12/2024
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling main.c...
+MAIN.C(81): error C129: missing ';' before 'key_scan'
+Target not created
+Build target 'Target 1'
+compiling main.c...
+MAIN.C(81): error C129: missing ';' before 'key_scan'
+Target not created
+Build target 'Target 1'
+compiling main.c...
+MAIN.C(81): error C129: missing ';' before 'key_scan'
+Target not created
+Build target 'Target 1'
+compiling main.c...
+MAIN.C(81): error C129: missing ';' before 'key_scan'
+Target not created
+Build target 'Target 1'
+compiling main.c...
+MAIN.C(81): error C129: missing ';' before 'key_scan'
+Target not created
